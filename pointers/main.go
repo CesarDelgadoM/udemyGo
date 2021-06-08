@@ -21,9 +21,17 @@ func info(f forma) {
 	fmt.Println("Area:", f.area())
 }
 
+type Stack struct {
+	data int
+	sgte *Stack
+}
+
+var stack *Stack
+
 func main() {
 	example1()
 	example2()
+	example3()
 }
 
 func example1() {
@@ -64,4 +72,50 @@ func example2() {
 		radio: 33,
 	}
 	info(&c)
+}
+
+func example3() {
+	initStack()
+	push(33)
+	push(44)
+	push(66)
+	printStack()
+	fmt.Println("-------")
+	fmt.Println("pop:", pop())
+	fmt.Println("-------")
+	printStack()
+	push(456)
+	fmt.Println("-------")
+	printStack()
+}
+
+func initStack() {
+	stack = &Stack{
+		data: 0,
+		sgte: nil,
+	}
+}
+
+func push(_data int) {
+	nStack := Stack{}
+	nStack.data = _data
+	nStack.sgte = stack
+	stack = &nStack
+}
+
+func pop() int {
+	d := stack.data
+	stack = stack.sgte
+	return d
+}
+
+func printStack() {
+	aux := &Stack{}
+	aux = stack
+	for stack.sgte != nil {
+		fmt.Println("value:", stack.data)
+		stack = stack.sgte
+	}
+	stack = aux
+	aux = nil
 }
