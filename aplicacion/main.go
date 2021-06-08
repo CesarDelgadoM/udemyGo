@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	//"golang.org/x/crypto/bcrypt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type persona struct {
@@ -15,7 +16,7 @@ type persona struct {
 func main() {
 	example1()
 	example2()
-	//example3()
+	example3()
 }
 
 func example1() {
@@ -50,14 +51,20 @@ func example2() {
 	}
 }
 
-/*
 func example3() {
 	pass := `pass1234`
-	bytepass, err := bcrypt.GenerateFromPassWord([]byte(pass), 4)
+	bytepass, err := bcrypt.GenerateFromPassword([]byte(pass), 4)
 	isErr(err, "Error en la encriptacion de la password")
-	fmt.Println(bytepass)
+	fmt.Println("Password:", pass)
+	fmt.Println("Password encrypted:", string(bytepass))
+	incorrectPass := "pass123"
+	err = bcrypt.CompareHashAndPassword([]byte(incorrectPass), bytepass)
+	if err != nil {
+		fmt.Println("Error de autenticacion en el login!")
+	} else {
+		fmt.Println("Login exitoso!")
+	}
 }
-*/
 
 func isErr(err error, msg string) {
 	if err != nil {

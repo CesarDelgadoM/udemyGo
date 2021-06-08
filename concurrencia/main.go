@@ -15,6 +15,7 @@ func main() {
 	fmt.Println("CPUs\t\t", runtime.NumCPU())
 	fmt.Println("Goroutines\t", runtime.NumGoroutine())
 	wg.Wait() //esperamos las goroutine que finalicen
+	exercise3()
 }
 
 func exercise1() {
@@ -27,6 +28,26 @@ func exercise1() {
 func exercise2() {
 	go foo()
 	bar()
+}
+
+func exercise3() {
+	fmt.Println("Numero de CPUs:", runtime.NumCPU())
+	fmt.Println("Numero de Goroutines", runtime.NumGoroutine())
+	cont := 0
+	const gs = 10
+	var wg sync.WaitGroup
+	wg.Add(gs)
+	for i := 0; i < gs; i++ {
+		go func() {
+			v := cont
+			v++
+			runtime.Gosched()
+			cont = v
+			wg.Done()
+		}()
+		fmt.Println("Numero de Gorutines:", runtime.NumGoroutine())
+	}
+	wg.Wait()
 }
 
 func foo() {
