@@ -1,4 +1,4 @@
-module udemyGo
+module github.com/CesarDelgadoM/udemyGo
 
 go 1.16
 

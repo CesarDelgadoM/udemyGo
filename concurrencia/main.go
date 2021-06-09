@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
+	"sync/atomic"
 )
 
 var wg sync.WaitGroup
@@ -16,6 +17,7 @@ func main() {
 	fmt.Println("Goroutines\t", runtime.NumGoroutine())
 	wg.Wait() //esperamos las goroutine que finalicen
 	exercise3()
+	exercise4()
 }
 
 func exercise1() {
@@ -30,24 +32,50 @@ func exercise2() {
 	bar()
 }
 
+//Mutex
 func exercise3() {
 	fmt.Println("Numero de CPUs:", runtime.NumCPU())
 	fmt.Println("Numero de Goroutines", runtime.NumGoroutine())
 	cont := 0
 	const gs = 10
 	var wg sync.WaitGroup
+	var mu sync.Mutex
 	wg.Add(gs)
 	for i := 0; i < gs; i++ {
 		go func() {
+			mu.Lock()
 			v := cont
 			v++
 			runtime.Gosched()
 			cont = v
+			mu.Unlock()
 			wg.Done()
 		}()
 		fmt.Println("Numero de Gorutines:", runtime.NumGoroutine())
 	}
 	wg.Wait()
+	fmt.Println("Cuenta:", cont)
+}
+
+//Atomic
+func exercise4() {
+	fmt.Println("Numero de CPUs:", runtime.NumCPU())
+	fmt.Println("Numero de Goroutines", runtime.NumGoroutine())
+	var cont int64
+	const gs = 10
+	var wg sync.WaitGroup
+	wg.Add(gs)
+	for i := 0; i < gs; i++ {
+		go func() {
+			atomic.AddInt64(&cont, 1)
+			runtime.Gosched()
+			fmt.Println("Contador:", atomic.LoadInt64(&cont))
+			wg.Done()
+		}()
+		fmt.Println("Numero de Gorutines:", runtime.NumGoroutine())
+	}
+	wg.Wait()
+	fmt.Println("Cuenta:", cont)
 }
 
 func foo() {
