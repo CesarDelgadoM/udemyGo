@@ -9,7 +9,6 @@ import (
 func main() {
 	c := fanIn(boring("Paola"), boring("Cesar"))
 	for i := 0; i < 10; i++ {
-		fanIn(boring("Paola"), boring("Cesar"))
 		fmt.Println(<-c)
 	}
 	fmt.Println("You're both boring; I'm leaving.")
@@ -29,10 +28,14 @@ func boring(msg string) <-chan string {
 func fanIn(input1, input2 <-chan string) <-chan string {
 	c := make(chan string)
 	go func() {
-		c <- <-input1
+		for {
+			c <- <-input1
+		}
 	}()
 	go func() {
-		c <- <-input2
+		for {
+			c <- <-input2
+		}
 	}()
 	return c
 }

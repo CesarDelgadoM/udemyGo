@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"runtime"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -14,6 +17,7 @@ func main() {
 	example6()
 	example7()
 	example8()
+	example9()
 }
 
 func example1() {
@@ -132,33 +136,59 @@ func example7() {
 	fmt.Println(v, ok)
 }
 
-//Rob Pike
+//Context
 func example8() {
-	c := fanIn(boring("Paola"), boring("Cesar"))
-	for i := 0; i < 10; i++ {
-		fanIn(boring("Paola"), boring("Cesar"))
-		fmt.Println(<-c)
-	}
-	fmt.Println("You're both boring; I'm leaving.")
-}
-
-func boring(msg string) <-chan string {
-	c := make(chan string)
+	ctx, cancel := context.WithCancel(context.Background())
+	fmt.Println("Chequeo de error 1:", ctx.Err())
+	fmt.Println("Num de gorutinas 1:", runtime.NumGoroutine())
 	go func() {
-		for i := 0; ; i++ {
-			c <- fmt.Sprintf("%s %d", msg, i)
+		n := 0
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				n++
+				time.Sleep(time.Millisecond * 200)
+				fmt.Println("Trabajando", n)
+			}
 		}
 	}()
-	return c
+	time.Sleep(time.Second * 2)
+	fmt.Println("Chequeo de error 2:", ctx.Err())
+	fmt.Println("Num de gorurinas 2:", runtime.NumGoroutine())
+	fmt.Println("Cancelando el context...")
+	cancel()
+	fmt.Println("context cancelado")
+	time.Sleep(time.Second * 2)
+	fmt.Println("Chequeo de error 3:", ctx.Err())
+	fmt.Println("Num de gorutinas 3:", runtime.NumGoroutine())
 }
 
-func fanIn(input1, input2 <-chan string) <-chan string {
-	c := make(chan string)
+func example9() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	for n := range gen(ctx) {
+		fmt.Println(n)
+		time.Sleep(time.Second * 2)
+		if n == 10 {
+			break
+		}
+	}
+}
+
+func gen(ctx context.Context) <-chan int {
+	dst := make(chan int)
+	n := 1
 	go func() {
-		c <- <-input1
+		for {
+			select {
+			case <-ctx.Done():
+				return //deteniendo la rutina
+			case dst <- n:
+				n++
+			}
+		}
 	}()
-	go func() {
-		c <- <-input2
-	}()
-	return c
+	return dst
 }
