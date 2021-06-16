@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,8 +15,10 @@ func main() {
 	example2()
 	example3()
 	example4()
-	example5()
-	example6()
+	//example5()
+	//example6()
+	//example7()
+	example8()
 }
 
 func example1() {
@@ -75,6 +78,34 @@ func foo() {
 	fmt.Println("Cuando os.Exit() es llamada, las funciones diferidas no corren")
 }
 
+func example7() {
+	_, err := os.Open("sin-archivo.txt")
+	isErrPanic(err, "Error al abrir el archivo -")
+}
+
+func example8() {
+	_, err := sqrt(-10)
+	isErrFatal(err, "Error en la funcion sqrt().")
+	_, err = sqrtFormat(-1)
+	isErrFatal(err, "Error en la funcion sqrtFormat().")
+}
+
+func sqrt(f float64) (float64, error) {
+	if f < 0 {
+		return 0, errors.New("De matematica elemental:" +
+			"no hay raiz cuadrada real de un numero negativo")
+	}
+	return 42, nil
+}
+
+func sqrtFormat(f float64) (float64, error) {
+	if f < 0 {
+		return 0, fmt.Errorf("De matematica elemental:"+
+			"no hay raiz cuadrada real de un numero negativo: %v", f)
+	}
+	return 42, nil
+}
+
 func isErr(err error, msg string, exit bool) {
 	if err != nil && exit {
 		fmt.Println("[ERROR]:", msg, err)
@@ -96,5 +127,11 @@ func isErrLog(err error, msg string, exit bool) {
 func isErrFatal(err error, msg string) {
 	if err != nil {
 		log.Fatalln("[ERROR]:", msg, err)
+	}
+}
+
+func isErrPanic(err error, msg string) {
+	if err != nil {
+		log.Panicln("[ERROR]:", msg, err)
 	}
 }

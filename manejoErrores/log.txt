@@ -1,1 +1,1 @@
-2021/06/15 16:50:43 [ERROR]: Error al abrir el archivo - open sin-archivo.txt: no such file or directory
+2021/06/15 20:11:40 [ERROR]: Error al abrir el archivo - open sin-archivo.txt: no such file or directory
